@@ -1,9 +1,15 @@
 package com.atm.atm;
 
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -28,12 +34,37 @@ public class LoginActivity extends AppCompatActivity {
 
     public void login(View view){
         String userid = edUserid.getText().toString();
-        String passwd = edPasswd.getText().toString();
+        final String passwd = edPasswd.getText().toString();
 
-        if("jack".equals(userid) && "1234".equals(passwd)){
-            setResult(RESULT_OK);
-            finish();
-        }
+        FirebaseDatabase.getInstance().getReference("users")
+                .child(userid)
+                .child("password")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String pw = (String) dataSnapshot.getValue();
+
+                        if (pw.equals(passwd)){
+                            setResult(RESULT_OK);
+                            finish();
+                        } else {
+                            new AlertDialog.Builder(LoginActivity.this)
+                                    .setTitle("登入結果")
+                                    .setMessage("登入失敗")
+                                    .setPositiveButton("OK", null)
+                                    .show();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+       /* if("jack".equals(userid) && "1234".equals(passwd)){
+
+        }*/
     }
 
     public void quit(View view){
