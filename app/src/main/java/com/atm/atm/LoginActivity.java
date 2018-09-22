@@ -5,6 +5,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 
 import com.google.firebase.database.DataSnapshot;
@@ -17,6 +19,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = LoginActivity.class.getSimpleName();
     private EditText edUserid;
     private EditText edPasswd;
+    private CheckBox cbRemember;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +47,20 @@ public class LoginActivity extends AppCompatActivity {
 
         edUserid = findViewById(R.id.edt_userid);
         edPasswd = findViewById(R.id.edt_passwd);
+        cbRemember = findViewById(R.id.cb_rem_userid);
+
+        cbRemember.setChecked(getSharedPreferences("atm", MODE_PRIVATE)
+                .getBoolean("REMEMBER_USERID", false));
+
+        cbRemember.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                getSharedPreferences("atm", MODE_PRIVATE)
+                        .edit()
+                        .putBoolean("REMEMBER_USERID", b)
+                        .apply();
+            }
+        });
 
     }
 
@@ -60,11 +77,16 @@ public class LoginActivity extends AppCompatActivity {
                         String pw = (String) dataSnapshot.getValue();
 
                         if (pw.equals(passwd)){
-                            //save userid
-                            getSharedPreferences("atm", MODE_PRIVATE)
-                                    .edit()
-                                    .putString("USERID", userid)
-                                    .apply();
+                            boolean remember = getSharedPreferences("atm", MODE_PRIVATE)
+                                    .getBoolean("REMEMBER_USERID", false);
+
+                            if (remember){
+                                //save userid
+                                getSharedPreferences("atm", MODE_PRIVATE)
+                                        .edit()
+                                        .putString("USERID", userid)
+                                        .apply();
+                            }
 
                             setResult(RESULT_OK);
                             finish();
