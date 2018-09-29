@@ -12,9 +12,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +27,7 @@ public class ContactActivity extends AppCompatActivity {
 
     private static final int REQUEST_CONTACTS = 80;
     private static final String TAG = ContactActivity.class.getSimpleName();
+    private ArrayList<Contacts> contactsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +45,8 @@ public class ContactActivity extends AppCompatActivity {
     private void readContacts() {
         //read contacts
         Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-        List<Contacts> contactsList = new ArrayList<>();
+        this.contactsList = new ArrayList<>();
+        List<Contacts> contactsList = this.contactsList;
         while (cursor.moveToNext()) {
             int id = cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts._ID));
             String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
@@ -71,6 +77,29 @@ public class ContactActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_contact, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_upload) {
+            //upload to FireBase
+            Log.d(TAG, "onOptionsItemSelected: " );
+            String userId = getSharedPreferences("atm", MODE_PRIVATE)
+                    .getString("USERID", null);
+            if (userId != null) {
+                FirebaseDatabase.getInstance().getReference("users")
+                        .child(userId)
+                        .child("contacts")
+                        .setValue(contactsList);
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactHolder> {
