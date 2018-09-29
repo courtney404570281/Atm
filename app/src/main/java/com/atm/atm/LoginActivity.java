@@ -3,6 +3,7 @@ package com.atm.atm;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -15,11 +16,16 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -34,13 +40,51 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
-        if (permission == PackageManager.PERMISSION_GRANTED) {
-//            takePhoto();
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CODE_CAMERA);
+//        camera();
+//        settingTest();
+        findViews();
+        new TestTask().execute("http://tw.yahoo.com");
+
+
+    }
+
+    public class TestTask extends AsyncTask<String, Void, Integer> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Log.d(TAG, "onPreExecute: ");
+            Toast.makeText(LoginActivity.this, "onPreExecute", Toast.LENGTH_LONG).show();
         }
 
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
+            Log.d(TAG, "onPostExecute: ");
+            Toast.makeText(LoginActivity.this, "onPostExecute:" + integer, Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        protected Integer doInBackground(String... strings) {
+
+            int data = 0;
+
+
+            try {
+                URL url = new URL(strings[0]);
+                data = url.openStream().read();
+                Log.d(TAG, "TestTask: " + data);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return data;
+        }
+    }
+
+    private void settingTest() {
         getSharedPreferences("atm", MODE_PRIVATE)
                 .edit()
                 .putInt("LEVEL", 3)
@@ -50,12 +94,15 @@ public class LoginActivity extends AppCompatActivity {
         int level = getSharedPreferences("atm", MODE_PRIVATE)
                 .getInt("LEVEL", 0);
         Log.d(TAG, "onCreate: " + level);
+    }
 
-        findViews();
-
-        String userid = getSharedPreferences("atm", MODE_PRIVATE)
-                .getString("USERID", "");
-        edUserid.setText(userid);
+    private void camera() {
+        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+        if (permission == PackageManager.PERMISSION_GRANTED) {
+            takePhoto();
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CODE_CAMERA);
+        }
     }
 
     @Override
@@ -92,6 +139,10 @@ public class LoginActivity extends AppCompatActivity {
                         .apply();
             }
         });
+
+        String userid = getSharedPreferences("atm", MODE_PRIVATE)
+                .getString("USERID", "");
+        edUserid.setText(userid);
 
     }
 
