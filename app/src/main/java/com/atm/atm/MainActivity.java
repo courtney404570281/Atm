@@ -126,6 +126,8 @@ public class MainActivity extends AppCompatActivity {
 
         switch (function.getIcon()){
             case R.drawable.func_transaction:
+                Intent transaction = new Intent(this, TransActivity.class);
+                startActivity(transaction);
                 break;
             case R.drawable.func_balance:
                 break;
