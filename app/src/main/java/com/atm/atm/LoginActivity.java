@@ -233,6 +233,10 @@ public class LoginActivity extends AppCompatActivity {
         }*/
     }
 
+    public void map(View view) {
+        startActivity(new Intent(this, MapsActivity.class));
+    }
+
     public void quit(View view){
         finish();
     }
