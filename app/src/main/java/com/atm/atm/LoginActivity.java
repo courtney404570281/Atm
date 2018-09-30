@@ -200,6 +200,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void quit(View view){
-
+        finish();
     }
 }
