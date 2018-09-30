@@ -70,7 +70,7 @@ public class FinanceActivity extends AppCompatActivity {
         @NonNull
         @Override
         public ExpenseHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            View view = getLayoutInflater().inflate(R.layout.expense_item, viewGroup, false);
+            View view = getLayoutInflater().inflate(R.layout.item_expense, viewGroup, false);
             return new ExpenseHolder(view);
         }
 
